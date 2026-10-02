@@ -1,0 +1,107 @@
+
+
+
+# ---------- Waveforms / simulation dumps ----------
+*.vcd
+*.fst
+*.fst.hier
+*.ghw
+*.lxt
+*.lxt2
+*.vpd
+*.fsdb
+*.wlf
+*.wdb
+*.shm/
+
+# ---------- Icarus Verilog ----------
+*.vvp
+a.out
+*.out
+
+# ---------- Verilator ----------
+obj_dir/
+
+# ---------- ModelSim / Questa ----------
+work/
+transcript
+vsim.dbg
+*.vstf
+wlft*
+*.mti
+*.mpf.bak
+
+# ---------- Synopsys VCS ----------
+simv
+simv.daidir/
+simv.vdb/
+csrc/
+DVEfiles/
+ucli.key
+vc_hdrs.h
+inter.vpd
+
+# ---------- Cadence Xcelium / Incisive ----------
+xcelium.d/
+INCA_libs/
+xrun.history
+irun.history
+xrun.key
+irun.key
+
+# ---------- Xilinx Vivado ----------
+.Xil/
+*.runs/
+*.cache/
+*.hw/
+*.sim/
+*.gen/
+*.ip_user_files/
+xsim.dir/
+*.jou
+*.str
+*.pb
+*.dcp
+*.ltx
+*.bit
+webtalk*
+usage_statistics_webtalk.*
+vivado_pid*.str
+
+# ---------- Intel Quartus ----------
+db/
+incremental_db/
+output_files/
+greybox_tmp/
+simulation/
+*.rpt
+*.summary
+*.smsg
+*.done
+*.jdi
+*.pin
+*.sld
+*.sof
+*.pof
+*.qws
+
+# ---------- Yosys / nextpnr (open-source flow) ----------
+*.blif
+*.asc
+*.edif
+
+# ---------- General build output ----------
+build/
+out/
+*.log
+*.bak
+*.tmp
+
+# ---------- Editors / OS ----------
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
