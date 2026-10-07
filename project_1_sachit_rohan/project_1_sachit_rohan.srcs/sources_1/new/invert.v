@@ -22,14 +22,16 @@
 
 module invert(
     input wire [15:0] b,
-    output wire [15:0] inverted_b
-    
+    output wire [15:0] inverted_b_plus_one
     );
     
     genvar i;
+    wire c_out;
+    wire [15:0] inverted_b;
     generate
         for (i = 0; i < 16; i = i + 1) begin
-           assign inverted_b[i] = ~b[i];
+           not(inverted_b[i], b[i]);
         end
     endgenerate
+    sixteen_bit_adder add(16'b0, inverted_b, 1'b1, c_out, inverted_b_plus_one);
 endmodule
