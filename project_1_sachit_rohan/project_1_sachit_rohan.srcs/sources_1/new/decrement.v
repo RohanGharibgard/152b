@@ -22,11 +22,10 @@
 
 module decrement(
     input wire [15:0] a,
-    output wire [15:0] s
+    output wire [15:0] s,
+    output wire overflow
 
     );
     
-    wire c_out;
-    
-    sixteen_bit_subtractor dec(a, 16'b1, s);
+    sixteen_bit_subtractor dec(a, 16'b1, s, overflow);
 endmodule
