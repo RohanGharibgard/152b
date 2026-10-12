@@ -21,8 +21,8 @@
 
 
 module zero(
-    input wire [15:0] a;
-    output wire zero;
+    input wire [15:0] sub_result,
+    output wire zero
     );
 
 
