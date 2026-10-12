@@ -25,6 +25,14 @@ module alu_tb(
     output wire [15:0] output_number
 
     );
-    
+    wire zero_result;
     sixteen_bit_adder test_one(16'b0000000000000001, 16'b0000000000000010, 0, output_carry, output_number);
+
+
+    zero zero(16'b0, zero_result);
+    assert (zero_result == 1)
+
+    zero zero2(16'b01101010101, zero_result);
+    assert 
+
 endmodule
