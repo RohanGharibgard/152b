@@ -5,7 +5,7 @@
 // 
 // Create Date: 10/07/2026 11:21:19 AM
 // Design Name: 
-// Module Name: art_shift_left
+// Module Name: shift_left
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module art_shift_left(
+module shift_left(
     input wire [15:0] a,
     input wire [15:0] b,
     output wire [15:0] s
