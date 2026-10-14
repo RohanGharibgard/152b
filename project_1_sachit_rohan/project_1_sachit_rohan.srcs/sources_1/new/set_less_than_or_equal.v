@@ -21,29 +21,19 @@
 
 
 module set_less_than_or_equal(
-    input wire [15:0] a,
-    input wire [15:0] b,
+    input wire [15:0] sub_result,
+    input wire sub_overflow,
     output wire [15:0] s
     );
-    wire [15:0] sub_result;
-    wire sub_overflow;
     wire less_than;
     wire result_is_zero;
 
-    sixteen_bit_subtractor subtractor(a, b, sub_result, sub_overflow);
-    
+    // a < b when a - b is negative, flipped if the subtraction overflowed
     xor(less_than, sub_result[15], sub_overflow);
-    
 
+    // a == b when a - b is zero
+    zero equal(sub_result, result_is_zero);
 
-    nor (result_is_zero, sub_result[0], sub_result[1], sub_result[2], 
-                         sub_result[3], sub_result[4], sub_result[5], 
-                         sub_result[6], sub_result[7], sub_result[8],
-                         sub_result[9],sub_result[10], sub_result[11], 
-                         sub_result[12], sub_result[13], sub_result[14], 
-                         sub_result[15]);        
-
-    
     or(s[0], less_than, result_is_zero);
     assign s[15:1] = 15'b0;
 
