@@ -33,7 +33,8 @@ module alu(
     wire not_ctrl0;
     wire add_c_out;
     wire adder_overflow;
-    wire arith_left_overflow;
+    wire shift_left_overflow;
+    wire shift_fill;
     wire [15:0] one;
     wire [15:0] adder_a;
     wire [15:0] adder_b_select;
@@ -41,10 +42,8 @@ module alu(
     wire [15:0] adder_result;
     wire [15:0] or_result;
     wire [15:0] and_result;
-    wire [15:0] arith_left_result;
-    wire [15:0] arith_right_result;
-    wire [15:0] log_left_result;
-    wire [15:0] log_right_result;
+    wire [15:0] shift_left_result;
+    wire [15:0] shift_right_result;
     wire [15:0] leq_result;
 
     wire same_sign;
@@ -91,14 +90,15 @@ module alu(
     bitwise_or bitwise_or(a, b, or_result);
     bitwise_and bitwise_and(a, b, and_result);
 
-    art_shift_left art_shift_left(a, b, arith_left_result);
-    art_shift_right art_shift_right(a, b, arith_right_result);
+    // Arithmetic and logical shift left are the same, so they share one shifter
+    shift_left shift_left(a, b, shift_left_result);
 
-    logical_shift_left logical_shift_left(a, b, log_left_result);
-    logical_shift_right logical_shift_right(a, b, log_right_result);
+    // Shift right fills with the sign bit for arithmetic (1110) and 0 for logical (1010)
+    and(shift_fill, a[15], ctrl[2]);
+    shift_right shift_right(a, b, shift_fill, shift_right_result);
 
     // Arithmetic shift left overflows when the sign changes
-    xor(arith_left_overflow, a[15], arith_left_result[15]);
+    xor(shift_left_overflow, a[15], shift_left_result[15]);
 
     // 00xx: sub, add, or, and
     // 01xx: dec, inc, invert, -
@@ -108,8 +108,8 @@ module alu(
         for (i2 = 0; i2 < 16; i2 = i2 + 1) begin
             mux4 m0(adder_result[i2], adder_result[i2], or_result[i2], and_result[i2], ctrl[1:0], group0[i2]);
             mux4 m1(adder_result[i2], adder_result[i2], adder_result[i2], 1'b0, ctrl[1:0], group1[i2]);
-            mux4 m2(log_left_result[i2], leq_result[i2], log_right_result[i2], 1'b0, ctrl[1:0], group2[i2]);
-            mux4 m3(arith_left_result[i2], 1'b0, arith_right_result[i2], 1'b0, ctrl[1:0], group3[i2]);
+            mux4 m2(shift_left_result[i2], leq_result[i2], shift_right_result[i2], 1'b0, ctrl[1:0], group2[i2]);
+            mux4 m3(shift_left_result[i2], 1'b0, shift_right_result[i2], 1'b0, ctrl[1:0], group3[i2]);
             mux4 mout(group0[i2], group1[i2], group2[i2], group3[i2], ctrl[3:2], s[i2]);
         end
     endgenerate
@@ -118,7 +118,7 @@ module alu(
     mux4 of0(adder_overflow, adder_overflow, 1'b0, 1'b0, ctrl[1:0], overflow_group[0]);
     mux4 of1(adder_overflow, adder_overflow, adder_overflow, 1'b0, ctrl[1:0], overflow_group[1]);
     buf(overflow_group[2], 1'b0);
-    mux4 of3(arith_left_overflow, 1'b0, 1'b0, 1'b0, ctrl[1:0], overflow_group[3]);
+    mux4 of3(shift_left_overflow, 1'b0, 1'b0, 1'b0, ctrl[1:0], overflow_group[3]);
     mux4 ofout(overflow_group[0], overflow_group[1], overflow_group[2], overflow_group[3], ctrl[3:2], overflow);
 
     zero zero_flag(s, zero);

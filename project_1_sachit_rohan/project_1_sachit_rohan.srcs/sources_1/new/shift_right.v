@@ -5,7 +5,7 @@
 // 
 // Create Date: 10/07/2026 11:33:59 AM
 // Design Name: 
-// Module Name: art_shift_right
+// Module Name: shift_right
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,9 +20,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module art_shift_right(
+module shift_right(
     input wire [15:0] a,
     input wire [15:0] b,
+    input wire fill,
     output wire [15:0] s
 );
 
@@ -57,7 +58,7 @@ module art_shift_right(
         end
     endgenerate
 
-    buf(shift1[15], a[15]);
+    buf(shift1[15], fill);
 
     // Choose shift by 0 or 1
     generate
@@ -73,8 +74,8 @@ module art_shift_right(
         end
     endgenerate
 
-    buf(shift2[14], stage1[15]);
-    buf(shift2[15], stage1[15]);
+    buf(shift2[14], fill);
+    buf(shift2[15], fill);
 
     // Choose shift by 0 or 2
     generate
@@ -90,10 +91,10 @@ module art_shift_right(
         end
     endgenerate
 
-    buf(shift4[12], stage2[15]);
-    buf(shift4[13], stage2[15]);
-    buf(shift4[14], stage2[15]);
-    buf(shift4[15], stage2[15]);
+    buf(shift4[12], fill);
+    buf(shift4[13], fill);
+    buf(shift4[14], fill);
+    buf(shift4[15], fill);
 
     // Choose shift by 0 or 4
     generate
@@ -109,14 +110,14 @@ module art_shift_right(
         end
     endgenerate
 
-    buf(shift8[8],  stage4[15]);
-    buf(shift8[9],  stage4[15]);
-    buf(shift8[10], stage4[15]);
-    buf(shift8[11], stage4[15]);
-    buf(shift8[12], stage4[15]);
-    buf(shift8[13], stage4[15]);
-    buf(shift8[14], stage4[15]);
-    buf(shift8[15], stage4[15]);
+    buf(shift8[8],  fill);
+    buf(shift8[9],  fill);
+    buf(shift8[10], fill);
+    buf(shift8[11], fill);
+    buf(shift8[12], fill);
+    buf(shift8[13], fill);
+    buf(shift8[14], fill);
+    buf(shift8[15], fill);
 
     // Choose shift by 0 or 8
     generate
@@ -131,10 +132,10 @@ module art_shift_right(
        b[8], b[9], b[10], b[11],
        b[12], b[13], b[14], b[15]);
 
-    // result should become all copies of the original sign bit (when >=16)
+    // result should become all fill bits (when >=16)
     generate
         for (i9 = 0; i9 < 16; i9 = i9 + 1) begin
-            mux2 mout(stage8[i9], a[15], shift_too_large, s[i9]);
+            mux2 mout(stage8[i9], fill, shift_too_large, s[i9]);
         end
     endgenerate
  endmodule
