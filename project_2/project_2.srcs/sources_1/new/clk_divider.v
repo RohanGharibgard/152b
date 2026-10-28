@@ -24,12 +24,12 @@ module clk_divider(
     input wire clk,
     input wire rst,
     input wire sync,
-    output reg baud_tick
+    output reg baud_tick = 0
 );
 
     // Clock cycles per half bit = 100 MHz / (9600 * 2)
     localparam divisor = 5208;
-    reg [12:0] cnt;
+    reg [12:0] cnt = 0;
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin

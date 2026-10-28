@@ -39,8 +39,20 @@ module uart_top_level(
     reg btnU_prev = 0;
     reg send = 0;
 
+    // 2-stage synchronizer for asynchronous external RX input
+    reg rx_sync1 = 1;
+    reg rx_sync2 = 1;
+    always @(posedge clk) begin
+        rx_sync1 <= rx_line;
+        rx_sync2 <= rx_sync1;
+    end
 
-    debouncer (clk, btnU, debouncedBtnU);
+    debouncer btn_deb (
+        .clk(clk),
+        .input_signal(btnU),
+        .debounced_signal(debouncedBtnU)
+    );
+
     // Generate one send pulse per button rising edge
     always @(posedge clk or posedge btnC) begin
         if (btnC) begin
@@ -84,7 +96,7 @@ module uart_top_level(
     reciever receiver (
         .clk(clk),
         .rst(btnC),
-        .rx_line(rx_line),
+        .rx_line(rx_sync2),
         .baud_tick(rx_baud_tick),
         .sync(rx_sync),
         .data(led)

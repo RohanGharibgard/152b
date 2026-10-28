@@ -26,14 +26,14 @@ module tx(
     input wire send,
     input wire [7:0] data,
     input wire baud_tick,
-    output reg sync,
-    output reg tx_line
+    output reg sync = 0,
+    output reg tx_line = 1
 );
 
-    integer bit_count;
-    integer tick_count;
-    reg [1:0] state;
-    reg [7:0] tx_data;
+    integer bit_count = 0;
+    integer tick_count = 0;
+    reg [1:0] state = 2'b00;
+    reg [7:0] tx_data = 0;
 
     localparam IDLE  = 2'b00;
     localparam START = 2'b01;

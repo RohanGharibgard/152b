@@ -19,23 +19,19 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
-
-`timescale 1ns / 1ps
-
 module reciever(
     input wire clk,
     input wire rst,
     input wire rx_line,
     input wire baud_tick,
-    output reg sync,
-    output reg [7:0] data
+    output reg sync = 0,
+    output reg [7:0] data = 0
 );
 
-    integer bit_count;
-    integer tick_count;
-    reg [1:0] state;
-    reg [7:0] recieved_data;
+    integer bit_count = 0;
+    integer tick_count = 0;
+    reg [1:0] state = 2'b00;
+    reg [7:0] recieved_data = 0;
 
     localparam IDLE  = 2'b00;
     localparam START = 2'b01;
@@ -127,4 +123,3 @@ module reciever(
     end
 
 endmodule
-
