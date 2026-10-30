@@ -81,6 +81,32 @@ module reciever_tb;
         end
     endtask
 
+    // Sends a frame with a custom number of data bits
+    task send_frame_n;
+        input [8:0] value;
+        input integer num_bits;
+        input stop_bit;
+        begin
+            @(negedge clk);
+
+            // Start bit
+            rx_line = 0;
+            #BIT_TIME;
+
+            // Data bits (LSB first)
+            for (i = 0; i < num_bits; i = i + 1) begin
+                rx_line = value[i];
+                #BIT_TIME;
+            end
+
+            // Stop bit
+            rx_line = stop_bit;
+            #BIT_TIME;
+
+            rx_line = 1;
+        end
+    endtask
+
     // Verify receiver output
     task check_data;
         input [7:0] expected;
@@ -121,7 +147,9 @@ module reciever_tb;
         #10000;
         rx_line = 1;
 
-        #BIT_TIME;
+        // Wait long enough for a falsely accepted frame to
+        // reach the output (a full frame is 10 bit times)
+        #(BIT_TIME * 10);
         check_data(8'b10100101);
 
         // TEST 3: Invalid stop bit
@@ -144,6 +172,72 @@ module reciever_tb;
 
         send_frame(8'b00001111, 1);
         check_data(8'b00001111);
+
+        // TEST 5: Boundary values
+        // All-zero and all-one bytes.
+        $display("TEST 5: Boundary values");
+
+        send_frame(8'b00000000, 1);
+        check_data(8'b00000000);
+
+        send_frame(8'b11111111, 1);
+        check_data(8'b11111111);
+
+        // TEST 6: Frame too long (9 data bits)
+        // The extra LOW bit lands where the stop bit is expected,
+        // so the frame should be rejected and the old byte kept.
+        $display("TEST 6: Frame too long");
+
+        send_frame_n(9'b011001100, 9, 1);
+
+        // Allow receiver to return to IDLE
+        #BIT_TIME;
+        check_data(8'b11111111);
+
+        // Receiver should recover and accept the next valid frame
+        send_frame(8'b01100110, 1);
+        check_data(8'b01100110);
+
+        // TEST 7: Frame too short (4 data bits)
+        // The line returns to IDLE (HIGH) early, so the missing
+        // bits are read as 1s.
+        $display("TEST 7: Frame too short");
+
+        send_frame_n(9'b000000101, 4, 1);
+
+        // Wait for the receiver to finish the missing bit times
+        #(BIT_TIME * 5);
+        check_data(8'b11110101);
+
+        // TEST 8: Reset during reception
+        // Reset should clear the output and abandon the partial
+        // frame, leaving the receiver ready for the next one.
+        $display("TEST 8: Reset mid-reception");
+
+        @(negedge clk);
+
+        // Start bit and 4 data bits
+        rx_line = 0;
+        #BIT_TIME;
+
+        for (i = 0; i < 4; i = i + 1) begin
+            rx_line = i[0];
+            #BIT_TIME;
+        end
+
+        // Reset while the line is idle again
+        rx_line = 1;
+        rst = 1;
+        #20;
+        rst = 0;
+        check_data(8'b00000000);
+
+        // The abandoned frame should never reach the output
+        #(BIT_TIME * 12);
+        check_data(8'b00000000);
+
+        send_frame(8'b00111100, 1);
+        check_data(8'b00111100);
 
         // Final results
         if (errors == 0)

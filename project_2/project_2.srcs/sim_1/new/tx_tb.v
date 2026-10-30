@@ -72,6 +72,7 @@ module tx_tb;
     task test_frame;
         input [7:0] value;
         input change_input;
+        input press_send;
         begin
             @(negedge clk);
             data = value;
@@ -88,6 +89,16 @@ module tx_tb;
             // TX should continue sending the original byte.
             if (change_input)
                 data = ~value;
+
+            // EDGE CASE: Press send again during transmission
+            // TX should ignore it and not start a second frame.
+            if (press_send) begin
+                @(negedge clk);
+                send = 1;
+
+                @(negedge clk);
+                send = 0;
+            end
 
             // Check all 8 data bits, LSB first
             for (i = 0; i < 8; i = i + 1) begin
@@ -115,12 +126,12 @@ module tx_tb;
         // TEST 1: Normal UART transmission
         // Verify start, 8 data bits, and stop.
         $display("TEST 1: Normal transmission");
-        test_frame(8'b10100101, 0);
+        test_frame(8'b10100101, 0, 0);
 
         // TEST 2: Input changes during transmission
         // Transmitted byte should not change.
         $display("TEST 2: Input changes");
-        test_frame(8'b11001010, 1);
+        test_frame(8'b11001010, 1, 0);
 
         // TEST 3: Reset during transmission
         // TX should immediately return to idle HIGH.
@@ -142,6 +153,22 @@ module tx_tb;
         rst = 0;
         #BIT_TIME;
         check_bit(1);
+
+        // TEST 4: Recovery after reset
+        // TX should send a correct frame after being reset.
+        $display("TEST 4: Transmission after reset");
+        test_frame(8'b00110101, 0, 0);
+
+        // TEST 5: Boundary values
+        // All-zero and all-one bytes.
+        $display("TEST 5: Boundary values");
+        test_frame(8'b00000000, 0, 0);
+        test_frame(8'b11111111, 0, 0);
+
+        // TEST 6: Send pressed during transmission
+        // The extra press should be ignored.
+        $display("TEST 6: Send pressed mid-transmission");
+        test_frame(8'b01101001, 1, 1);
 
         if (errors == 0)
             $display("All TX tests PASSED");
